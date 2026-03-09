@@ -272,8 +272,53 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .neo-row{font-size:12px;margin:2px 0}
 .neo-k{color:var(--cyan);display:inline-block;width:72px}
 
-@media(max-width:860px){.sidebar{display:none}.proj-grid,.contact-grid,.help-grid{grid-template-columns:1fr}}
-@media(max-width:540px){.profile-wrap{flex-direction:column}.term-out{padding:14px 16px}.term-in{padding:8px 14px}}
+/* go button */
+.go-btn{
+  background:var(--gdim);border:1px solid rgba(63,185,80,.3);
+  color:var(--green);font-family:var(--mono);font-size:12px;
+  padding:4px 12px;border-radius:5px;cursor:pointer;
+  transition:all .15s;flex-shrink:0;
+}
+.go-btn:hover,.go-btn:active{background:rgba(63,185,80,.2);border-color:var(--green)}
+
+/* welcome box */
+.welcome-box{
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:8px;padding:14px 16px;margin:6px 0;
+}
+.wb-title{color:var(--green);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.wb-grid{display:flex;flex-direction:column;gap:7px}
+.wb-item{display:flex;align-items:flex-start;gap:10px;color:var(--text2);font-size:12px;line-height:1.5}
+.wb-item svg{flex-shrink:0;margin-top:2px;opacity:.7}
+.wb-item b{color:var(--text)}
+
+/* mobile nav bar */
+.mobile-nav{
+  display:none;
+  background:var(--s2);border-top:1px solid var(--border);
+  padding:8px 10px;gap:6px;flex-wrap:wrap;justify-content:center;
+  flex-shrink:0;
+}
+.mob-btn{
+  background:transparent;border:1px solid var(--border2);
+  color:var(--muted);font-family:var(--mono);font-size:11px;
+  padding:7px 12px;border-radius:6px;cursor:pointer;
+  transition:all .15s;display:flex;align-items:center;gap:6px;
+}
+.mob-btn:hover,.mob-btn:active{border-color:var(--green);color:var(--green);background:var(--gdim)}
+.mob-btn svg{flex-shrink:0}
+
+@media(max-width:860px){
+  .sidebar{display:none}
+  .mobile-nav{display:flex}
+  .proj-grid,.contact-grid,.help-grid{grid-template-columns:1fr}
+}
+@media(max-width:540px){
+  .profile-wrap{flex-direction:column}
+  .term-out{padding:14px 16px}
+  .term-in{padding:8px 14px}
+  .mob-btn{font-size:11px;padding:6px 10px}
+}
 </style>
 </head>
 <body>
@@ -390,10 +435,39 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="term-in">
       <span class="prompt"><span class="pu">john</span>@<span class="ph">portfolio</span>:<span class="ph">~</span>$&nbsp;</span>
       <input class="cmd-field" id="cmdField" autocomplete="off" spellcheck="false"
-        placeholder="type a command or click the sidebar..."/>
+        placeholder="type a command + Enter (or tap Go)..."/>
+      <button class="go-btn" onclick="submitField()">Go</button>
       <div class="cur"></div>
     </div>
   </div>
+</div><!-- end layout -->
+
+<!-- MOBILE NAV BAR -->
+<div class="mobile-nav">
+  <button class="mob-btn" onclick="run('whoami')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    whoami
+  </button>
+  <button class="mob-btn" onclick="run('projects')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    projects
+  </button>
+  <button class="mob-btn" onclick="run('skills')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    skills
+  </button>
+  <button class="mob-btn" onclick="run('experience')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    exp
+  </button>
+  <button class="mob-btn" onclick="run('contact')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    contact
+  </button>
+  <button class="mob-btn" onclick="run('clear')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+    clear
+  </button>
 </div>
 
 <script>
@@ -457,39 +531,35 @@ function echo(cmd){
 }
 
 // ── BOOT ────────────────────────────────────────────────────────────────
+const isMobile=()=>window.innerWidth<=860;
+
 (async()=>{
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   for(const m of[
     '<span class="gr">PortfolioOS 1.0 &mdash; ready.</span>',
-    '<span class="g">&#10003;</span> <span class="gr">All systems loaded. Welcome.</span>',
+    '<span class="g">&#10003;</span> <span class="gr">All systems loaded. Welcome to my portfolio.</span>',
     ''
   ]){line(m);await sleep(90);}
 
-  block(`
-<div class="profile-wrap">
-  <div class="pcard-av">
-    <img src="avatar.jpeg" alt="John" onerror="this.style.display='none'"/>
-  </div>
-  <div>
-    <div class="pname">John Otolorin</div>
-    <div class="prole">Full-Stack Developer &amp; Brand Designer</div>
-    <div class="ploc">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      Ipetumodu, Osun State, Nigeria
+  // How-to guide — adapts to device
+  block(`<div class="welcome-box">
+  <div class="wb-title">How to navigate</div>
+  <div class="wb-grid" id="wbGrid">
+    <div class="wb-item" id="wbDesktop">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <span><b>Desktop:</b> Click sidebar items, or press <span class="y">W P S E C H</span> on your keyboard</span>
     </div>
-    <div class="tags">
-      <span class="tag tg">&#9679; Available</span>
-      <span class="tag tc">Flutter</span>
-      <span class="tag tc">Supabase</span>
-      <span class="tag tb">Firebase</span>
-      <span class="tag tp">Brand Design</span>
-      <span class="tag tb">Figma</span>
+    <div class="wb-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      <span><b>Mobile:</b> Tap the menu buttons below, or type a command and tap Go</span>
+    </div>
+    <div class="wb-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      <span><b>Type:</b> <span class="y">whoami</span> &middot; <span class="y">projects</span> &middot; <span class="y">skills</span> &middot; <span class="y">contact</span> &middot; <span class="y">help</span></span>
     </div>
   </div>
 </div>`);
 
-  line('<span class="gr">&rarr; Use the sidebar to navigate, or type a command below.</span>');
-  line('<span class="gr">&rarr; Shortcuts: <span class="y">W</span>&thinsp;&middot;&thinsp;<span class="y">P</span>&thinsp;&middot;&thinsp;<span class="y">S</span>&thinsp;&middot;&thinsp;<span class="y">E</span>&thinsp;&middot;&thinsp;<span class="y">C</span>&thinsp;&middot;&thinsp;<span class="y">H</span></span>');
   line('');
 })();
 
@@ -711,6 +781,8 @@ field.addEventListener('keydown',e=>{
   else if(e.key==='ArrowDown'){e.preventDefault();if(histIdx>0){histIdx--;field.value=history[histIdx];}else{histIdx=-1;field.value='';}}
   else if(e.key==='Tab'){e.preventDefault();const m=Object.keys(cmds).find(k=>k.startsWith(field.value.toLowerCase()));if(m)field.value=m;}
 });
+
+function submitField(){run(field.value);field.value='';}
 
 document.querySelector('.term-area').addEventListener('click',()=>field.focus());
 

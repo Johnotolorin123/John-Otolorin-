@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>John Otolorin — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#080c10;
+  --surface:#0d1117;
+  --surface2:#161b22;
+  --surface3:#1c2128;
+  --border:#21262d;
+  --border2:#30363d;
+  --text:#e6edf3;
+  --text2:#c9d1d9;
+  --muted:#8b949e;
+  --green:#3fb950;
+  --green-dim:#1a3d20;
+  --blue:#58a6ff;
+  --yellow:#e3b341;
+  --red:#f85149;
+  --purple:#bc8cff;
+  --cyan:#39c5cf;
+  --orange:#f0883e;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Inter',sans-serif;
+}
+
+html,body{height:100%;overflow:hidden}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.6;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── SCANLINES ── */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);
+  pointer-events:none;z-index:9999;
+}
+
+/* ── TOP BAR ── */
+.topbar{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 20px;
+  display:flex;
+  align-items:center;
+  gap:0;
+  height:42px;
+  flex-shrink:0;
+}
+.topbar-brand{
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--muted);
+  margin-right:auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.topbar-brand .dot-grp{display:flex;gap:5px;align-items:center}
+.dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.dot-r{background:#f85149}.dot-y{background:#e3b341}.dot-g{background:#3fb950}
+.topbar-brand span{color:var(--muted);margin-left:8px}
+.topbar-brand .name{color:var(--text2)}
+.status-pill{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(63,185,80,0.08);
+  border:1px solid rgba(63,185,80,0.25);
+  border-radius:20px;padding:3px 10px;
+  font-size:11px;color:var(--green);
+}
+.status-pill::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--green);
+  animation:pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+/* ── NAV TABS ── */
+.nav-tabs{
+  background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  padding:0 16px;
+  display:flex;
+  gap:2px;
+  flex-shrink:0;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.nav-tabs::-webkit-scrollbar{display:none}
+.tab{
+  background:transparent;
+  border:none;border-bottom:2px solid transparent;
+  color:var(--muted);
+  font-family:var(--mono);
+  font-size:12px;
+  padding:10px 14px 8px;
+  cursor:pointer;
+  transition:all .2s;
+  white-space:nowrap;
+  display:flex;align-items:center;gap:6px;
+}
+.tab:hover{color:var(--text2);background:rgba(255,255,255,0.03)}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.tab-icon{font-size:11px}
+
+/* ── MAIN LAYOUT ── */
+.main{
+  display:flex;
+  flex:1;
+  overflow:hidden;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:220px;
+  flex-shrink:0;
+  background:var(--surface2);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.sidebar-section{
+  padding:12px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-label{
+  font-size:10px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  margin-bottom:8px;
+  padding:0 4px;
+}
+.sidebar-item{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 8px;border-radius:5px;
+  color:var(--muted);font-size:12px;
+  cursor:pointer;transition:all .15s;
+  border:none;background:none;width:100%;text-align:left;
+  font-family:var(--mono);
+}
+.sidebar-item:hover{background:rgba(255,255,255,0.05);color:var(--text2)}
+.sidebar-item.active{background:rgba(63,185,80,0.1);color:var(--green)}
+.sidebar-item .si-icon{width:16px;text-align:center;font-size:13px}
+.sidebar-item .si-key{
+  margin-left:auto;font-size:10px;color:var(--border2);
+  border:1px solid var(--border);border-radius:3px;padding:1px 4px;
+}
+
+/* ── TERMINAL AREA ── */
+.terminal-area{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  background:var(--bg);
+}
+
+.terminal-output{
+  flex:1;
+  padding:20px 24px;
+  overflow-y:auto;
+  scroll-behavior:smooth;
+}
+.terminal-output::-webkit-scrollbar{width:6px}
+.terminal-output::-webkit-scrollbar-track{background:transparent}
+.terminal-output::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── INPUT BAR ── */
+.input-bar{
+  display:flex;align-items:center;
+  padding:10px 24px;
+  background:var(--surface2);
+  border-top:1px solid var(--border);
+  gap:8px;
+  flex-shrink:0;
+}
+.prompt-txt{
+  color:var(--green);font-size:13px;white-space:nowrap;flex-shrink:0;
+}
+.prompt-txt .pu{color:var(--blue)}
+.prompt-txt .ph{color:var(--cyan)}
+.cmd-input{
+  flex:1;background:transparent;border:none;
+  color:var(--text);font-family:var(--mono);font-size:13px;
+  outline:none;caret-color:var(--green);
+}
+.cmd-input::placeholder{color:var(--border2)}
+.cursor-block{
+  width:8px;height:14px;background:var(--green);
+  animation:blink 1s step-start infinite;flex-shrink:0;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── OUTPUT STYLES ── */
+.out-line{
+  margin:1px 0;white-space:pre-wrap;word-break:break-word;
+  animation:fadeIn .15s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:translateY(0)}}
+
+.cmd-echo{
+  display:flex;gap:6px;margin:6px 0 2px;
+  padding:4px 8px;background:rgba(255,255,255,0.02);
+  border-left:2px solid var(--green);border-radius:0 4px 4px 0;
+}
+
+.g{color:var(--green)}.b{color:var(--blue)}.y{color:var(--yellow)}
+.r{color:var(--red)}.p{color:var(--purple)}.c{color:var(--cyan)}
+.gr{color:var(--muted)}.or{color:var(--orange)}.bold{font-weight:700}
+
+/* ── CONTENT BLOCKS ── */
+.blk{margin:8px 0;animation:fadeIn .2s ease}
+
+.sec-hdr{
+  color:var(--green);font-weight:700;
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  padding:8px 0 6px;margin-bottom:8px;
+  border-bottom:1px solid var(--green-dim);
+  display:flex;align-items:center;gap:8px;
+}
+.sec-hdr::before{content:'';width:3px;height:14px;background:var(--green);border-radius:2px}
+
+.divider{height:1px;background:var(--border);margin:10px 0}
+
+/* WHOAMI */
+.profile-card{
+  display:flex;gap:20px;align-items:flex-start;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:18px;margin:8px 0;
+}
+.profile-avatar{
+  width:64px;height:64px;border-radius:8px;
+  background:linear-gradient(135deg,var(--green-dim),var(--surface3));
+  border:2px solid var(--green);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;flex-shrink:0;
+}
+.profile-info .pname{color:var(--text);font-size:16px;font-weight:700;margin-bottom:2px}
+.profile-info .prole{color:var(--cyan);font-size:12px;margin-bottom:8px}
+.profile-info .ploc{color:var(--muted);font-size:12px;display:flex;align-items:center;gap:4px}
+.profile-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{
+  background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);
+  color:var(--blue);font-size:11px;padding:2px 8px;border-radius:20px;
+}
+.tag.green{background:rgba(63,185,80,0.08);border-color:rgba(63,185,80,0.2);color:var(--green)}
+.tag.purple{background:rgba(188,140,255,0.08);border-color:rgba(188,140,255,0.2);color:var(--purple)}
+.bio-text{
+  background:var(--surface2);border-left:3px solid var(--border2);
+  padding:12px 16px;border-radius:0 6px 6px 0;
+  color:var(--text2);font-size:12.5px;line-height:1.7;margin:8px 0;
+}
+
+/* SKILLS */
+.skill-grp-label{color:var(--yellow);font-size:11px;letter-spacing:1px;margin:12px 0 6px;text-transform:uppercase}
+.skill-row{display:flex;align-items:center;gap:10px;margin:5px 0}
+.skill-name{color:var(--cyan);font-size:12px;min-width:190px;flex-shrink:0}
+.skill-track{
+  flex:1;max-width:200px;height:6px;
+  background:var(--surface3);border-radius:3px;overflow:hidden;
+}
+.skill-fill{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--green),var(--cyan));
+  animation:growBar .6s ease forwards;
+  transform-origin:left;
+}
+@keyframes growBar{from{width:0}to{width:var(--w)}}
+.skill-pct{color:var(--muted);font-size:11px;min-width:28px}
+
+/* PROJECTS */
+.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
+.proj-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:14px;
+  transition:border-color .2s,transform .2s,box-shadow .2s;
+  cursor:default;
+}
+.proj-card:hover{
+  border-color:var(--green);transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(63,185,80,0.08);
+}
+.proj-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.proj-name{color:var(--green);font-weight:700;font-size:13px}
+.badge{
+  font-size:10px;padding:2px 8px;border-radius:20px;
+  border:1px solid;white-space:nowrap;flex-shrink:0;
+}
+.badge-live{background:rgba(63,185,80,0.1);border-color:var(--green);color:var(--green)}
+.badge-wip{background:rgba(227,179,65,0.1);border-color:var(--yellow);color:var(--yellow)}
+.badge-build{background:rgba(88,166,255,0.1);border-color:var(--blue);color:var(--blue)}
+.proj-desc{color:var(--text2);font-size:12px;line-height:1.6;margin-bottom:8px}
+.proj-tech{color:var(--purple);font-size:11px;margin-bottom:8px}
+.proj-links{display:flex;gap:10px;flex-wrap:wrap}
+.proj-link{
+  color:var(--cyan);font-size:11px;text-decoration:none;
+  display:flex;align-items:center;gap:4px;
+  transition:color .15s;
+}
+.proj-link:hover{color:var(--green)}
+
+/* EXPERIENCE */
+.timeline{border-left:2px solid var(--border2);padding-left:20px;margin:8px 0 8px 8px}
+.tl-item{position:relative;margin:16px 0}
+.tl-item::before{
+  content:'';position:absolute;
+  left:-25px;top:6px;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--green);border:2px solid var(--bg);
+}
+.tl-date{color:var(--muted);font-size:11px;letter-spacing:.5px;margin-bottom:3px}
+.tl-company{color:var(--blue);font-weight:700;font-size:13px;margin-bottom:2px}
+.tl-role{color:var(--cyan);font-size:12px;margin-bottom:6px}
+.tl-bullets{color:var(--text2);font-size:12px;line-height:1.7;padding-left:4px}
+.tl-bullets li{list-style:none;padding-left:12px;position:relative}
+.tl-bullets li::before{content:'▸';position:absolute;left:0;color:var(--green)}
+.tl-link{color:var(--cyan);text-decoration:none;font-size:11px;display:inline-flex;align-items:center;gap:4px;margin-top:4px}
+.tl-link:hover{color:var(--green)}
+
+.edu-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:14px;display:flex;gap:12px;align-items:center;
+}
+.edu-icon{font-size:24px}
+.edu-degree{color:var(--text);font-weight:600;font-size:13px}
+.edu-school{color:var(--cyan);font-size:12px}
+.edu-loc{color:var(--muted);font-size:11px;margin-top:2px}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
+.contact-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:14px;
+  transition:border-color .2s;display:flex;align-items:center;gap:12px;
+}
+.contact-card:hover{border-color:var(--cyan)}
+.contact-card a{color:var(--text2);text-decoration:none;font-size:12px;transition:color .15s}
+.contact-card a:hover{color:var(--cyan)}
+.contact-icon{font-size:20px;flex-shrink:0}
+.contact-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.cta-bar{
+  background:linear-gradient(135deg,rgba(63,185,80,0.08),rgba(88,166,255,0.05));
+  border:1px solid rgba(63,185,80,0.2);
+  border-radius:8px;padding:14px 18px;margin:10px 0;
+  color:var(--text2);font-size:12px;line-height:1.6;
+}
+.cta-bar strong{color:var(--green)}
+
+/* HELP */
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.help-row{display:flex;align-items:baseline;gap:10px;padding:5px 8px;border-radius:4px;transition:background .15s}
+.help-row:hover{background:rgba(255,255,255,0.03)}
+.help-cmd{color:var(--yellow);min-width:130px;flex-shrink:0}
+.help-desc{color:var(--muted);font-size:12px}
+
+/* NEOFETCH */
+.neo-wrap{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;margin:8px 0}
+.neo-ascii{color:var(--green);font-size:10px;line-height:1.2;flex-shrink:0}
+.neo-info .neo-row{margin:2px 0;font-size:12px}
+.neo-info .neo-key{color:var(--cyan);display:inline-block;width:70px}
+
+/* ASCII HEADER */
+.ascii-art{color:var(--green);font-size:10px;line-height:1.15;margin:6px 0}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .proj-grid{grid-template-columns:1fr}
+  .contact-grid{grid-template-columns:1fr}
+  .help-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .profile-card{flex-direction:column}
+  .topbar-brand .name{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="dot-grp">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+    </div>
+    <span>john@portfolio <span class="name">— ~/portfolio</span></span>
+  </div>
+  <div class="status-pill">Available for work</div>
+</div>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <button class="tab active" onclick="runTab('whoami')"><span class="tab-icon">👤</span> whoami</button>
+  <button class="tab" onclick="runTab('projects')"><span class="tab-icon">🚀</span> projects</button>
+  <button class="tab" onclick="runTab('skills')"><span class="tab-icon">⚡</span> skills</button>
+  <button class="tab" onclick="runTab('experience')"><span class="tab-icon">📋</span> experience</button>
+  <button class="tab" onclick="runTab('contact')"><span class="tab-icon">📬</span> contact</button>
+  <button class="tab" onclick="runTab('help')"><span class="tab-icon">❓</span> help</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Navigate</div>
+      <button class="sidebar-item active" id="si-whoami" onclick="runTab('whoami')">
+        <span class="si-icon">👤</span> whoami <span class="si-key">w</span>
+      </button>
+      <button class="sidebar-item" id="si-projects" onclick="runTab('projects')">
+        <span class="si-icon">🚀</span> projects <span class="si-key">p</span>
+      </button>
+      <button class="sidebar-item" id="si-skills" onclick="runTab('skills')">
+        <span class="si-icon">⚡</span> skills <span class="si-key">s</span>
+      </button>
+      <button class="sidebar-item" id="si-experience" onclick="runTab('experience')">
+        <span class="si-icon">📋</span> experience <span class="si-key">e</span>
+      </button>
+      <button class="sidebar-item" id="si-contact" onclick="runTab('contact')">
+        <span class="si-icon">📬</span> contact <span class="si-key">c</span>
+      </button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Actions</div>
+      <button class="sidebar-item" onclick="runTab('open dcmt')">
+        <span class="si-icon">🌐</span> open dcmt
+      </button>
+      <button class="sidebar-item" onclick="runTab('open reelbase')">
+        <span class="si-icon">🎬</span> open reelbase
+      </button>
+      <button class="sidebar-item" onclick="runTab('download ruston')">
+        <span class="si-icon">⬇</span> download ruston
+      </button>
+      <button class="sidebar-item" onclick="runTab('neofetch')">
+        <span class="si-icon">🖥</span> neofetch
+      </button>
+      <button class="sidebar-item" onclick="runTab('clear')">
+        <span class="si-icon">🧹</span> clear
+      </button>
+    </div>
+    <div class="sidebar-section" style="margin-top:auto">
+      <div class="sidebar-label">Info</div>
+      <div style="font-size:11px;color:var(--muted);padding:0 4px;line-height:1.7">
+        <div>📍 Ipetumodu, Nigeria</div>
+        <div style="margin-top:4px;color:var(--green)">● Open to work</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TERMINAL -->
+  <div class="terminal-area">
+    <div class="terminal-output" id="termOut"></div>
+    <div class="input-bar">
+      <span class="prompt-txt">
+        <span class="pu">john</span>@<span class="ph">portfolio</span>:<span class="ph">~</span>$
+      </span>
+      <input type="text" class="cmd-input" id="cmdInput" autocomplete="off" spellcheck="false"
+        placeholder="type a command or click sidebar shortcuts..."/>
+      <div class="cursor-block"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const out   = document.getElementById('termOut');
+const input = document.getElementById('cmdInput');
+
+let cmdHistory = [], histIdx = -1;
+
+// ── HELPERS ──────────────────────────────────────────────────────────
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const scroll = () => { out.scrollTop = out.scrollHeight; };
+
+function line(html, cls=''){
+  const d = document.createElement('div');
+  d.className = 'out-line ' + cls;
+  d.innerHTML = html;
+  out.appendChild(d);
+  scroll();
+}
+
+function html(h){
+  const d = document.createElement('div');
+  d.className = 'blk';
+  d.innerHTML = h;
+  out.appendChild(d);
+  scroll();
+}
+
+function echo(cmd){
+  const d = document.createElement('div');
+  d.className = 'cmd-echo';
+  d.innerHTML = `<span class="g">$</span><span class="y">${cmd}</span>`;
+  out.appendChild(d);
+  scroll();
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────────
+(async()=>{
+  const lines = [
+    '<span class="gr">PortfolioOS 1.0 — Initializing...</span>',
+    '<span class="g">✓</span> <span class="gr">Profile loaded: john_otolorin</span>',
+    '<span class="g">✓</span> <span class="gr">Projects mounted · Skills indexed · Contact ready</span>',
+    '',
+  ];
+  for(const l of lines){ line(l); await sleep(100); }
+
+  html(`
+<div class="profile-card">
+  <div class="profile-avatar">🧑‍💻</div>
+  <div class="profile-info">
+    <div class="pname">John Otolorin</div>
+    <div class="prole">Full-Stack Developer & Brand Designer</div>
+    <div class="ploc">📍 Ipetumodu, Osun State, Nigeria 🇳🇬</div>
+    <div class="profile-tags">
+      <span class="tag green">● Available</span>
+      <span class="tag">Flutter</span>
+      <span class="tag">Supabase</span>
+      <span class="tag purple">Brand Design</span>
+      <span class="tag">Figma</span>
+    </div>
+  </div>
+</div>`);
+  line('');
+  line('<span class="gr">→ Click a sidebar item, a tab above, or type a command below.</span>');
+  line('<span class="gr">→ Try: <span class="y">help</span> · <span class="y">projects</span> · <span class="y">skills</span> · <span class="y">contact</span></span>');
+  line('');
+  scroll();
+})();
+
+// ── COMMANDS ─────────────────────────────────────────────────────────
+const commands = {
+
+whoami(){
+  html(`
+<div>
+<div class="sec-hdr">ABOUT ME</div>
+<div class="profile-card">
+  <div class="profile-avatar">🧑‍💻</div>
+  <div class="profile-info">
+    <div class="pname">John Otolorin</div>
+    <div class="prole">Full-Stack Developer | Brand Designer</div>
+    <div class="ploc">📍 Ipetumodu, Osun State, Nigeria 🇳🇬</div>
+    <div class="profile-tags">
+      <span class="tag green">● Available for hire</span>
+      <span class="tag">Flutter</span>
+      <span class="tag">Supabase</span>
+      <span class="tag">Firebase</span>
+      <span class="tag purple">Brand Design</span>
+      <span class="tag">Figma</span>
+      <span class="tag">Web Dev</span>
+    </div>
+  </div>
+</div>
+<div class="bio-text">
+I am a creative and solution-driven developer focused on building modern web platforms, mobile applications, and digital brand systems. I combine strong technical development with thoughtful design to create products that are both functional and visually engaging.
+<br/><br/>
+My work focuses on scalable backend services, clean frontend architecture, and intuitive user experiences.
+</div>
+<div class="divider"></div>
+<span class="gr">→ Type </span><span class="y">projects</span><span class="gr"> to see my work, or </span><span class="y">skills</span><span class="gr"> to explore my stack.</span>
+</div>`);
+},
+
+skills(){
+  const groups = [
+    { label:'Languages', color:'y', items:[['HTML',95],['CSS',93],['JavaScript',80],['SQL',70]] },
+    { label:'Frameworks & Development', color:'y', items:[['Flutter / FlutterFlow',85],['Supabase',80],['Firebase',78],['REST API Integration',80],['Auth Systems & RBAC',78]] },
+    { label:'Design Tools', color:'y', items:[['Figma',90],['Adobe Photoshop',75],['Adobe Illustrator',70],['Brand Identity Design',88],['UI/UX Design',85]] },
+    { label:'Web Platforms', color:'y', items:[['WordPress',78],['Web Development & Deployment',80]] },
+  ];
+  let h = `<div><div class="sec-hdr">SKILLS MATRIX</div>`;
+  for(const g of groups){
+    h += `<div class="skill-grp-label">${g.label}</div>`;
+    for(const [name,pct] of g.items){
+      h += `<div class="skill-row">
+        <span class="skill-name">${name}</span>
+        <div class="skill-track"><div class="skill-fill" style="--w:${pct}%;width:${pct}%"></div></div>
+        <span class="skill-pct">${pct}%</span>
+      </div>`;
+    }
+  }
+  h += `<div class="divider"></div><span class="gr">→ Type </span><span class="y">projects</span><span class="gr"> to see these skills in action.</span></div>`;
+  html(h);
+},
+
+projects(){
+  html(`<div>
+<div class="sec-hdr">PROJECTS</div>
+<div class="proj-grid">
+
+  <div class="proj-card">
+    <div class="proj-top">
+      <div class="proj-name">Ruston Learn</div>
+      <span class="badge badge-wip">In Progress</span>
+    </div>
+    <div class="proj-desc">School management mobile app for Ruston Schools. Secure auth, role-based access, and dashboards for admins, teachers & students.</div>
+    <div class="proj-tech">Flutter · Supabase · Role-Based Auth</div>
+    <div class="proj-links">
+      <a href="https://drive.google.com/file/d/1dETI1GGe_6AEEUHpQDi58tXkd_8s5on0/view?usp=drivesdk" target="_blank" class="proj-link">⬇ Download APK</a>
+    </div>
+  </div>
+
+  <div class="proj-card">
+    <div class="proj-top">
+      <div class="proj-name">ReelBase</div>
+      <span class="badge badge-live">Live</span>
+    </div>
+    <div class="proj-desc">Movie trailer streaming platform integrating the TMDB API for dynamic movie discovery and trailer browsing.</div>
+    <div class="proj-tech">Full-Stack · TMDB API · Dynamic UI</div>
+    <div class="proj-links">
+      <a href="https://reelbase.base44.app" target="_blank" class="proj-link">🌐 Live Demo →</a>
+    </div>
+  </div>
+
+  <div class="proj-card">
+    <div class="proj-top">
+      <div class="proj-name">SkillSwap</div>
+      <span class="badge badge-build">Building</span>
+    </div>
+    <div class="proj-desc">A collaborative platform where users can exchange skills and knowledge. Building a community around skill sharing and peer learning.</div>
+    <div class="proj-tech">In Development</div>
+  </div>
+
+  <div class="proj-card">
+    <div class="proj-top">
+      <div class="proj-name">DCMT Website</div>
+      <span class="badge badge-live">Live</span>
+    </div>
+    <div class="proj-desc">Official website for Dalewares College of Management and Technology — responsive, mobile-first, with full institutional branding.</div>
+    <div class="proj-tech">Web Dev · Brand Design · Responsive</div>
+    <div class="proj-links">
+      <a href="https://dcmt.edu.ng" target="_blank" class="proj-link">🌐 Visit Site →</a>
+    </div>
+  </div>
+
+</div>
+<div class="divider"></div>
+<span class="gr">→ Type </span><span class="y">open reelbase</span><span class="gr"> or </span><span class="y">open dcmt</span><span class="gr"> to visit live projects.</span>
+</div>`);
+},
+
+experience(){
+  html(`<div>
+<div class="sec-hdr">EXPERIENCE & EDUCATION</div>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-date">2025 — Present</div>
+    <div class="tl-company">Dalewares College of Management & Technology</div>
+    <div class="tl-role">Web Developer & Brand Designer</div>
+    <ul class="tl-bullets">
+      <li>Designed and developed the official institution website</li>
+      <li>Built responsive layouts optimised for mobile & desktop</li>
+      <li>Structured academic and institutional content online</li>
+      <li>Contributed to digital branding and online presence</li>
+    </ul>
+    <a href="https://dcmt.edu.ng" target="_blank" class="tl-link">🔗 dcmt.edu.ng</a>
+  </div>
+</div>
+
+<div class="sec-hdr" style="margin-top:16px">EDUCATION</div>
+<div class="edu-card">
+  <div class="edu-icon">🎓</div>
+  <div>
+    <div class="edu-degree">BSc Computer Science <span class="badge badge-build" style="margin-left:8px">In View</span></div>
+    <div class="edu-school">Oduduwa University</div>
+    <div class="edu-loc">📍 Ipetumodu, Osun State, Nigeria</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+<span class="gr">→ Type </span><span class="y">contact</span><span class="gr"> to reach out.</span>
+</div>`);
+},
+
+contact(){
+  html(`<div>
+<div class="sec-hdr">CONTACT</div>
+<div class="contact-grid">
+  <div class="contact-card">
+    <div class="contact-icon">📧</div>
+    <div>
+      <div class="contact-label">Email</div>
+      <a href="mailto:johnotolorin007@gmail.com">johnotolorin007@gmail.com</a>
+    </div>
+  </div>
+  <div class="contact-card">
+    <div class="contact-icon">📱</div>
+    <div>
+      <div class="contact-label">Phone</div>
+      <a href="tel:+2349161826203">09161826203</a>
+    </div>
+  </div>
+  <div class="contact-card">
+    <div class="contact-icon">🐙</div>
+    <div>
+      <div class="contact-label">GitHub</div>
+      <a href="https://github.com/Johnotolorin123" target="_blank">Johnotolorin123</a>
+    </div>
+  </div>
+  <div class="contact-card">
+    <div class="contact-icon">📍</div>
+    <div>
+      <div class="contact-label">Location</div>
+      <span style="color:var(--text2);font-size:12px">Ipetumodu, Osun State, Nigeria</span>
+    </div>
+  </div>
+</div>
+<div class="cta-bar">
+  <strong>Open to opportunities.</strong> I'm available for freelance projects, remote work, collaborations, and full-time roles. Reach out via email or GitHub.
+</div>
+</div>`);
+},
+
+help(){
+  html(`<div>
+<div class="sec-hdr">AVAILABLE COMMANDS</div>
+<div class="help-grid">
+  <div>
+    <div class="help-row"><span class="help-cmd">whoami</span><span class="help-desc">About me & bio</span></div>
+    <div class="help-row"><span class="help-cmd">projects</span><span class="help-desc">Project portfolio</span></div>
+    <div class="help-row"><span class="help-cmd">skills</span><span class="help-desc">Skills matrix</span></div>
+    <div class="help-row"><span class="help-cmd">experience</span><span class="help-desc">Work history</span></div>
+    <div class="help-row"><span class="help-cmd">contact</span><span class="help-desc">Contact info</span></div>
+    <div class="help-row"><span class="help-cmd">neofetch</span><span class="help-desc">System info card</span></div>
+  </div>
+  <div>
+    <div class="help-row"><span class="help-cmd">open dcmt</span><span class="help-desc">Open dcmt.edu.ng</span></div>
+    <div class="help-row"><span class="help-cmd">open reelbase</span><span class="help-desc">Open ReelBase demo</span></div>
+    <div class="help-row"><span class="help-cmd">download ruston</span><span class="help-desc">Get Ruston Learn APK</span></div>
+    <div class="help-row"><span class="help-cmd">clear</span><span class="help-desc">Clear terminal</span></div>
+    <div class="help-row"><span class="help-cmd">neofetch</span><span class="help-desc">System snapshot</span></div>
+  </div>
+</div>
+<div class="divider"></div>
+<span class="gr">💡 You can also click sidebar shortcuts or the tabs at the top.</span>
+</div>`);
+},
+
+neofetch(){
+  html(`<div class="neo-wrap">
+<pre class="neo-ascii">
+     ██╗ ██████╗ 
+     ██║██╔═══██╗
+     ██║██║   ██║
+██   ██║██║   ██║
+╚█████╔╝╚██████╔╝
+ ╚════╝  ╚═════╝ 
+</pre>
+<div class="neo-info">
+  <div style="color:var(--blue);font-weight:700;font-size:14px;margin-bottom:4px">john<span style="color:var(--muted)">@</span><span style="color:var(--green)">portfolio</span></div>
+  <div style="height:1px;background:var(--border);margin-bottom:8px"></div>
+  <div class="neo-row"><span class="neo-key">OS</span> PortfolioOS 1.0 LTS</div>
+  <div class="neo-row"><span class="neo-key">Shell</span> portfolio.sh</div>
+  <div class="neo-row"><span class="neo-key">Role</span> Full-Stack Dev & Brand Designer</div>
+  <div class="neo-row"><span class="neo-key">Based</span> Ipetumodu, Nigeria 🇳🇬</div>
+  <div class="neo-row"><span class="neo-key">Status</span> <span style="color:var(--green)">● Available</span></div>
+  <div class="neo-row"><span class="neo-key">Stack</span> Flutter · Supabase · Figma</div>
+  <div class="neo-row"><span class="neo-key">GitHub</span> Johnotolorin123</div>
+</div>
+</div>`);
+},
+
+'open dcmt'(){
+  line('<span class="g">✓ Opening dcmt.edu.ng in new tab...</span>');
+  setTimeout(()=>window.open('https://dcmt.edu.ng','_blank'),300);
+},
+
+'open reelbase'(){
+  line('<span class="g">✓ Opening ReelBase live demo...</span>');
+  setTimeout(()=>window.open('https://reelbase.base44.app','_blank'),300);
+},
+
+'download ruston'(){
+  line('<span class="g">✓ Opening Ruston Learn APK download...</span>');
+  setTimeout(()=>window.open('https://drive.google.com/file/d/1dETI1GGe_6AEEUHpQDi58tXkd_8s5on0/view?usp=drivesdk','_blank'),300);
+},
+
+clear(){
+  out.innerHTML = '';
+  line('<span class="gr">Terminal cleared. Type <span class="y">help</span> for commands.</span>');
+},
+};
+
+// ── RUN ───────────────────────────────────────────────────────────────
+function runTab(raw){
+  const cmd = raw.trim().toLowerCase();
+  if(!cmd) return;
+  echo(raw.trim());
+  if(cmdHistory[0] !== raw.trim()) cmdHistory.unshift(raw.trim());
+  histIdx = -1;
+
+  // Update sidebar active
+  document.querySelectorAll('.sidebar-item').forEach(el=>el.classList.remove('active'));
+  const si = document.getElementById('si-'+cmd);
+  if(si) si.classList.add('active');
+
+  // Update tabs active
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.toggle('active', t.textContent.trim().toLowerCase().includes(cmd));
+  });
+
+  if(commands[cmd]){
+    commands[cmd]();
+  } else if(cmd==='sudo'){
+    line('<span class="r">Permission denied. Nice try 😄</span>');
+  } else if(cmd==='exit'||cmd==='quit'){
+    line('<span class="gr">Session ended. Thanks for visiting!</span>');
+  } else {
+    line(`<span class="r">command not found: ${raw.trim()}</span> <span class="gr">— try <span class="y">help</span></span>`);
+  }
+  line('');
+  scroll();
+}
+
+// ── INPUT ─────────────────────────────────────────────────────────────
+input.addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    runTab(input.value);
+    input.value='';
+  } else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    if(histIdx < cmdHistory.length-1){ histIdx++; input.value=cmdHistory[histIdx]; }
+  } else if(e.key==='ArrowDown'){
+    e.preventDefault();
+    if(histIdx>0){ histIdx--; input.value=cmdHistory[histIdx]; }
+    else { histIdx=-1; input.value=''; }
+  } else if(e.key==='Tab'){
+    e.preventDefault();
+    const cmds = Object.keys(commands);
+    const match = cmds.find(c=>c.startsWith(input.value.toLowerCase()));
+    if(match) input.value=match;
+  }
+});
+
+// Click anywhere on terminal area to focus input
+document.querySelector('.terminal-area').addEventListener('click',()=>input.focus());
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(document.activeElement === input) return;
+  const map = {w:'whoami',p:'projects',s:'skills',e:'experience',c:'contact'};
+  if(map[e.key]){ input.focus(); runTab(map[e.key]); }
+});
+</script>
+</body>
+</html>

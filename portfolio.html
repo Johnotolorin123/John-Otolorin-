@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>John Otolorin — Portfolio Terminal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0d1117;
+            --text: #e6edf3;
+            --green: #3fb950;
+            --blue: #58a6ff;
+            --yellow: #e3b341;
+            --red: #f85149;
+            --purple: #a371f7;
+            --cyan: #39c5cf;
+            --gray: #8b949e;
+            --dark: #161b22;
+            --border: #30363d;
+            --mono: 'Courier New', 'Monaco', 'Menlo', monospace;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* CRT scanline */
+        body::before {
+            content: '';
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ── HINT BAR (top) ── */
+        .hint-bar {
+            background: #0a0f14;
+            border-bottom: 1px solid var(--border);
+            padding: 8px 20px;
+            font-size: 12px;
+            color: var(--gray);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: center;
+        }
+        .hint-bar span { color: var(--cyan); }
+        .hint-bar strong { color: var(--yellow); margin-right: 4px; }
+
+        /* ── QUICK NAV ── */
+        .quick-nav {
+            background: var(--dark);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--cyan);
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover {
+            border-color: var(--green);
+            color: var(--green);
+            background: rgba(63,185,80,0.08);
+        }
+
+        /* ── TERMINAL ── */
+        .terminal-wrap {
+            max-width: 900px;
+            margin: 24px auto;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            background: var(--dark);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+            user-select: none;
+        }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-r { background: #f85149; }
+        .dot-y { background: #e3b341; }
+        .dot-g { background: #3fb950; }
+        .terminal-header-title {
+            flex: 1;
+            text-align: center;
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .terminal-body {
+            padding: 20px;
+            min-height: 500px;
+            max-height: 75vh;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+        .terminal-body::-webkit-scrollbar { width: 8px; }
+        .terminal-body::-webkit-scrollbar-track { background: var(--bg); }
+        .terminal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        /* ── OUTPUT ── */
+        .line { margin: 3px 0; white-space: pre-wrap; word-break: break-word; }
+        .g { color: var(--green); }
+        .b { color: var(--blue); }
+        .y { color: var(--yellow); }
+        .r { color: var(--red); }
+        .p { color: var(--purple); }
+        .c { color: var(--cyan); }
+        .gr { color: var(--gray); }
+        .bold { font-weight: bold; }
+
+        /* ── INPUT LINE ── */
+        .input-row {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 6px;
+            border-top: 1px solid #1c2128;
+        }
+        .prompt-label { color: var(--green); white-space: nowrap; flex-shrink: 0; }
+        .prompt-user { color: var(--blue); }
+        .prompt-host { color: var(--cyan); }
+        .cmd-input {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 14px;
+            flex: 1;
+            outline: none;
+            margin-left: 6px;
+            caret-color: var(--green);
+        }
+        .blink-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background: var(--green);
+            animation: blink 1s step-start infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+        /* ── SECTION BLOCKS ── */
+        .section-header {
+            color: var(--green);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 4px;
+            margin: 12px 0 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .skill-row { margin: 5px 0; display: flex; align-items: center; gap: 10px; }
+        .skill-label { color: var(--cyan); min-width: 200px; }
+        .skill-bar-bg { background: var(--dark); width: 180px; height: 10px; display: inline-block; border: 1px solid var(--border); }
+        .skill-bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--cyan)); }
+
+        .project-block {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px;
+            margin: 10px 0;
+            background: var(--dark);
+            transition: border-color 0.2s;
+        }
+        .project-block:hover { border-color: var(--green); }
+        .project-name { color: var(--green); font-weight: bold; font-size: 15px; }
+        .project-desc { color: var(--text); margin: 6px 0; }
+        .project-tech { color: var(--purple); font-size: 12px; margin-top: 6px; }
+        .project-link { color: var(--cyan); font-size: 12px; text-decoration: none; }
+        .project-link:hover { color: var(--green); }
+        .badge {
+            display: inline-block;
+            background: rgba(63,185,80,0.12);
+            border: 1px solid var(--green);
+            color: var(--green);
+            font-size: 10px;
+            padding: 1px 7px;
+            border-radius: 20px;
+            margin-left: 8px;
+        }
+        .badge-wip {
+            background: rgba(227,179,65,0.12);
+            border-color: var(--yellow);
+            color: var(--yellow);
+        }
+
+        .timeline-line { border-left: 2px solid var(--border); padding-left: 18px; margin-left: 8px; }
+        .tl-item { position: relative; margin: 14px 0; }
+        .tl-item::before { content: '◆'; position: absolute; left: -24px; color: var(--green); font-size: 10px; top: 4px; }
+        .tl-date { color: var(--gray); font-size: 12px; }
+        .tl-title { color: var(--blue); font-weight: bold; }
+        .tl-role { color: var(--cyan); }
+
+        .contact-row { margin: 5px 0; }
+        .contact-row a { color: var(--cyan); text-decoration: none; }
+        .contact-row a:hover { color: var(--green); text-decoration: underline; }
+
+        .ascii { color: var(--green); font-size: 11px; line-height: 1.15; }
+        .divider { border-top: 1px solid var(--border); margin: 8px 0; }
+
+        @media (max-width: 640px) {
+            .terminal-wrap { margin: 0; border-radius: 0; height: 100vh; }
+            .terminal-body { max-height: calc(100vh - 160px); }
+            .skill-bar-bg { width: 100px; }
+            .skill-label { min-width: 150px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HINT BAR -->
+<div class="hint-bar">
+    <span>👋 Welcome! This is an interactive terminal portfolio.</span>
+    <span>Type a <strong>command</strong> below, or click the <strong>shortcut buttons</strong> to explore.</span>
+    <span>Start with <strong style="color:var(--green)">help</strong> to see all commands.</span>
+</div>
+
+<!-- QUICK NAV -->
+<div class="quick-nav">
+    <button class="nav-btn" onclick="runCmd('whoami')">👤 whoami</button>
+    <button class="nav-btn" onclick="runCmd('projects')">🚀 projects</button>
+    <button class="nav-btn" onclick="runCmd('skills')">⚡ skills</button>
+    <button class="nav-btn" onclick="runCmd('experience')">📋 experience</button>
+    <button class="nav-btn" onclick="runCmd('contact')">📬 contact</button>
+    <button class="nav-btn" onclick="runCmd('help')">❓ help</button>
+    <button class="nav-btn" onclick="runCmd('clear')">🧹 clear</button>
+</div>
+
+<!-- TERMINAL -->
+<div class="terminal-wrap">
+    <div class="terminal-header">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <span class="terminal-header-title">john@portfolio: ~</span>
+    </div>
+    <div class="terminal-body" id="termBody">
+        <div id="output"></div>
+        <div class="input-row">
+            <span class="prompt-label">
+                <span class="prompt-user">john</span>@<span class="prompt-host">portfolio</span>:<span class="prompt-host">~</span>$&nbsp;
+            </span>
+            <input type="text" class="cmd-input" id="cmdInput" autofocus autocomplete="off" spellcheck="false" placeholder="type a command or click a button above...">
+            <span class="blink-cursor"></span>
+        </div>
+    </div>
+</div>
+
+<script>
+const output = document.getElementById('output');
+const input  = document.getElementById('cmdInput');
+const body   = document.getElementById('termBody');
+
+let history = [];
+let histIdx  = -1;
+
+// ── BOOT ─────────────────────────────────────────────────────────────
+const bootLines = [
+    '<span class="gr">PortfolioOS v1.0 — John Otolorin</span>',
+    '<span class="gr">Booting system...</span>',
+    '<span class="g">[ OK ]</span> <span class="gr">Loaded profile: john_otolorin</span>',
+    '<span class="g">[ OK ]</span> <span class="gr">Mounted projects directory</span>',
+    '<span class="g">[ OK ]</span> <span class="gr">Skills database ready</span>',
+    '',
+    '<span class="g bold">Welcome! I\'m John Otolorin — Full-Stack Developer & Brand Designer.</span>',
+    '<span class="gr">Based in Ipetumodu, Osun State, Nigeria 🇳🇬</span>',
+    '',
+    '→ Click any button above, or type <span class="y">help</span> and press Enter to get started.',
+    '<span class="gr">Tip: Use ↑↓ arrow keys to navigate command history.</span>',
+    '',
+];
+
+(async () => {
+    for (const line of bootLines) {
+        appendLine(line);
+        await sleep(80);
+    }
+    scrollDown();
+})();
+
+// ── HELPERS ──────────────────────────────────────────────────────────
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function scrollDown() { body.scrollTop = body.scrollHeight; }
+
+function appendLine(html, cls = '') {
+    const d = document.createElement('div');
+    d.className = 'line ' + cls;
+    d.innerHTML = html;
+    output.appendChild(d);
+    scrollDown();
+}
+
+function appendHTML(html) {
+    const d = document.createElement('div');
+    d.innerHTML = html;
+    output.appendChild(d);
+    scrollDown();
+}
+
+function echoCommand(cmd) {
+    appendLine(`<span class="g">john</span>@<span class="c">portfolio</span>:<span class="c">~</span>$ <span class="y">${cmd}</span>`);
+}
+
+// ── COMMANDS ─────────────────────────────────────────────────────────
+const commands = {
+
+    help() {
+        appendHTML(`
+<div style="margin:8px 0">
+<div class="section-header">📖 AVAILABLE COMMANDS</div>
+<div class="line"><span class="y" style="display:inline-block;width:130px">whoami</span><span class="gr">About John — bio & background</span></div>
+<div class="line"><span class="y" style="display:inline-block;width:130px">projects</span><span class="gr">View my projects & work</span></div>
+<div class="line"><span class="y" style="display:inline-block;width:130px">skills</span><span class="gr">Technical skills overview</span></div>
+<div class="line"><span class="y" style="display:inline-block;width:130px">experience</span><span class="gr">Work history & education</span></div>
+<div class="line"><span class="y" style="display:inline-block;width:130px">contact</span><span class="gr">Get in touch</span></div>
+<div class="line"><span class="y" style="display:inline-block;width:130px">open dcmt</span><span class="gr">Open DCMT website</span></div>
+<div class="line"><span class="y" style="display:inline-block;width:130px">open reelbase</span><span class="gr">Open ReelBase live demo</span></div>
+<div class="line"><span class="y" style="display:inline-block;width:130px">download ruston</span><span class="gr">Download Ruston Learn APK</span></div>
+<div class="line"><span class="y" style="display:inline-block;width:130px">clear</span><span class="gr">Clear the terminal</span></div>
+<div class="divider"></div>
+<div class="line gr">💡 Tip: You can also click the buttons at the top to navigate!</div>
+</div>`);
+    },
+
+    whoami() {
+        appendHTML(`
+<div style="margin:8px 0">
+<pre class="ascii">
+     ██╗ ██████╗ ██╗  ██╗███╗   ██╗
+     ██║██╔═══██╗██║  ██║████╗  ██║
+     ██║██║   ██║███████║██╔██╗ ██║
+██   ██║██║   ██║██╔══██║██║╚██╗██║
+╚█████╔╝╚██████╔╝██║  ██║██║ ╚████║
+ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝
+</pre>
+<div class="section-header">👤 JOHN OTOLORIN</div>
+<div class="line"><span class="c">Role:</span>     Full-Stack Developer | Brand Designer</div>
+<div class="line"><span class="c">Location:</span> Ipetumodu, Osun State, Nigeria 🇳🇬</div>
+<div class="line"><span class="c">Status:</span>   <span class="g">● Available for work</span></div>
+<div class="divider"></div>
+<div class="line" style="max-width:600px;color:#c9d1d9">
+I am a creative and solution-driven developer focused on building modern web platforms, mobile applications, and digital brand systems. I combine strong technical development with thoughtful design to create products that are both functional and visually engaging.
+</div>
+<div class="line" style="margin-top:8px;max-width:600px;color:#c9d1d9">
+My work focuses on scalable backend services, clean frontend architecture, and intuitive user experiences.
+</div>
+<div class="divider"></div>
+<div class="line gr">→ Type <span class="y">skills</span> or <span class="y">projects</span> to learn more.</div>
+</div>`);
+    },
+
+    skills() {
+        const bars = [
+            ['HTML / CSS',              95],
+            ['JavaScript',              80],
+            ['SQL',                     70],
+            ['Flutter / FlutterFlow',   85],
+            ['Firebase / Supabase',     80],
+            ['REST API Integration',    80],
+            ['Figma',                   90],
+            ['Adobe Photoshop',         75],
+            ['Adobe Illustrator',       70],
+            ['Brand Identity Design',   88],
+            ['UI/UX Design',            85],
+            ['WordPress / Web Deploy',  78],
+        ];
+
+        let html = `<div style="margin:8px 0"><div class="section-header">⚡ SKILLS MATRIX</div>`;
+
+        const groups = [
+            { label: 'Languages', items: ['HTML / CSS','JavaScript','SQL'] },
+            { label: 'Frameworks & Dev', items: ['Flutter / FlutterFlow','Firebase / Supabase','REST API Integration'] },
+            { label: 'Design Tools', items: ['Figma','Adobe Photoshop','Adobe Illustrator','Brand Identity Design','UI/UX Design'] },
+            { label: 'Web Platforms', items: ['WordPress / Web Deploy'] },
+        ];
+
+        for (const group of groups) {
+            html += `<div class="line y" style="margin-top:10px;letter-spacing:1px">${group.label}</div>`;
+            for (const name of group.items) {
+                const pct = bars.find(b => b[0] === name)?.[1] || 70;
+                html += `
+<div class="skill-row">
+  <span class="skill-label">${name}</span>
+  <span class="skill-bar-bg"><span class="skill-bar-fill" style="width:${pct}%"></span></span>
+  <span class="gr" style="font-size:12px">${pct}%</span>
+</div>`;
+            }
+        }
+
+        html += `<div class="divider"></div><div class="line gr">→ Type <span class="y">projects</span> to see skills in action.</div></div>`;
+        appendHTML(html);
+    },
+
+    experience() {
+        appendHTML(`
+<div style="margin:8px 0">
+<div class="section-header">📋 EXPERIENCE & EDUCATION</div>
+
+<div class="timeline-line">
+  <div class="tl-item">
+    <div class="tl-date">2025 — Present</div>
+    <div class="tl-title">Dalewares College of Management and Technology (DCMT Polytechnic)</div>
+    <div class="tl-role">Web Developer & Brand Designer</div>
+    <div class="line" style="color:#c9d1d9;margin-top:4px">
+• Designed and developed the official institution website<br>
+• Built responsive layouts optimised for mobile and desktop<br>
+• Structured academic and institutional information online<br>
+• Contributed to digital branding and online presence
+    </div>
+    <div style="margin-top:6px"><a href="https://dcmt.edu.ng" target="_blank" class="project-link">🔗 dcmt.edu.ng</a></div>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-date">In View</div>
+    <div class="tl-title">Oduduwa University — Ipetumodu, Osun State</div>
+    <div class="tl-role">BSc Computer Science</div>
+    <div class="line gr" style="margin-top:4px">Currently pursuing undergraduate degree in Computer Science.</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+<div class="line gr">→ Type <span class="y">contact</span> to get in touch.</div>
+</div>`);
+    },
+
+    projects() {
+        appendHTML(`
+<div style="margin:8px 0">
+<div class="section-header">🚀 PROJECTS</div>
+
+<div class="project-block">
+  <div class="project-name">Ruston Learn <span class="badge badge-wip">In Progress</span></div>
+  <div class="project-desc">A school management mobile application built for Ruston Schools. Features secure authentication, role-based access, and dashboards for admins, teachers, and students.</div>
+  <div class="project-tech">Flutter · Supabase · Role-Based Auth</div>
+  <div style="margin-top:8px">
+    <a href="https://drive.google.com/file/d/1dETI1GGe_6AEEUHpQDi58tXkd_8s5on0/view?usp=drivesdk" target="_blank" class="project-link">⬇ Download APK</a>
+    &nbsp;&nbsp;<span class="gr" style="font-size:12px">or type: <span class="y">download ruston</span></span>
+  </div>
+</div>
+
+<div class="project-block">
+  <div class="project-name">ReelBase <span class="badge">Live</span></div>
+  <div class="project-desc">A movie trailer streaming platform. Integrates with the TMDB API for dynamic movie discovery and trailer streaming with a clean, browseable UI.</div>
+  <div class="project-tech">Full-Stack · TMDB API · Dynamic UI</div>
+  <div style="margin-top:8px">
+    <a href="https://reelbase.base44.app" target="_blank" class="project-link">🌐 Live Demo →</a>
+    &nbsp;&nbsp;<span class="gr" style="font-size:12px">or type: <span class="y">open reelbase</span></span>
+  </div>
+</div>
+
+<div class="project-block">
+  <div class="project-name">SkillSwap <span class="badge badge-wip">Building</span></div>
+  <div class="project-desc">A platform that allows users to exchange skills and learn from each other. Creating a collaborative environment where people share knowledge, connect, and grow through skill exchange.</div>
+  <div class="project-tech">In Development</div>
+</div>
+
+<div class="project-block">
+  <div class="project-name">DCMT Polytechnic Website <span class="badge">Live</span></div>
+  <div class="project-desc">Official institutional website for Dalewares College of Management and Technology — responsive, mobile-first, with structured academic content and digital branding.</div>
+  <div class="project-tech">Web Development · Brand Design · Responsive Layout</div>
+  <div style="margin-top:8px">
+    <a href="https://dcmt.edu.ng" target="_blank" class="project-link">🌐 Visit Site →</a>
+    &nbsp;&nbsp;<span class="gr" style="font-size:12px">or type: <span class="y">open dcmt</span></span>
+  </div>
+</div>
+
+<div class="divider"></div>
+<div class="line gr">→ Type <span class="y">contact</span> to discuss a project.</div>
+</div>`);
+    },
+
+    contact() {
+        appendHTML(`
+<div style="margin:8px 0">
+<div class="section-header">📬 CONTACT</div>
+
+<div class="contact-row">📧 Email: &nbsp;<a href="mailto:johnotolorin007@gmail.com">johnotolorin007@gmail.com</a></div>
+<div class="contact-row">📱 Phone: &nbsp;<a href="tel:+2349161826203">09161826203</a></div>
+<div class="contact-row">🐙 GitHub: <a href="https://github.com/Johnotolorin123" target="_blank">github.com/Johnotolorin123</a></div>
+<div class="contact-row">📍 Location: Ipetumodu, Osun State, Nigeria</div>
+
+<div class="divider"></div>
+<div class="line g">I'm open to freelance projects, collaborations, and full-time opportunities.</div>
+<div class="line gr" style="margin-top:4px">→ Reach out via email or GitHub.</div>
+</div>`);
+    },
+
+    'open dcmt'() {
+        appendLine('<span class="g">Opening dcmt.edu.ng...</span>');
+        setTimeout(() => window.open('https://dcmt.edu.ng', '_blank'), 300);
+    },
+
+    'open reelbase'() {
+        appendLine('<span class="g">Opening ReelBase demo...</span>');
+        setTimeout(() => window.open('https://reelbase.base44.app', '_blank'), 300);
+    },
+
+    'download ruston'() {
+        appendLine('<span class="g">Opening Ruston Learn APK download...</span>');
+        setTimeout(() => window.open('https://drive.google.com/file/d/1dETI1GGe_6AEEUHpQDi58tXkd_8s5on0/view?usp=drivesdk', '_blank'), 300);
+    },
+
+    clear() {
+        output.innerHTML = '';
+        appendLine('<span class="gr">Terminal cleared. Type <span class="y">help</span> to see commands.</span>');
+    },
+
+    neofetch() {
+        appendHTML(`
+<div style="margin:8px 0;display:flex;gap:24px;flex-wrap:wrap">
+<pre class="ascii" style="flex-shrink:0">
+   ██╗ ██████╗ 
+   ██║██╔═══██╗
+   ██║██║   ██║
+██ ██║██║   ██║
+╚████╔╝╚██████╔╝
+ ╚═══╝  ╚═════╝ 
+</pre>
+<div>
+<div class="line"><span class="b bold">john</span><span class="gr">@</span><span class="g bold">portfolio</span></div>
+<div class="divider"></div>
+<div class="line"><span class="c">OS:</span>      PortfolioOS 1.0 LTS</div>
+<div class="line"><span class="c">Shell:</span>   portfolio.sh</div>
+<div class="line"><span class="c">Role:</span>    Full-Stack Dev & Brand Designer</div>
+<div class="line"><span class="c">Based:</span>   Ipetumodu, Nigeria 🇳🇬</div>
+<div class="line"><span class="c">Status:</span>  <span class="g">● Available</span></div>
+<div class="line"><span class="c">Stack:</span>   Flutter · Firebase · Supabase · Figma</div>
+<div class="line"><span class="c">GitHub:</span>  github.com/Johnotolorin123</div>
+</div>
+</div>`);
+    },
+};
+
+// ── RUN COMMAND ───────────────────────────────────────────────────────
+function runCmd(raw) {
+    const cmd = raw.trim().toLowerCase();
+    if (!cmd) return;
+
+    echoCommand(raw.trim());
+
+    if (history[0] !== raw.trim()) history.unshift(raw.trim());
+    histIdx = -1;
+
+    if (commands[cmd]) {
+        commands[cmd]();
+    } else if (cmd === 'sudo') {
+        appendLine('<span class="r">Permission denied. Nice try though 😄</span>');
+    } else if (cmd === 'exit' || cmd === 'quit') {
+        appendLine('<span class="gr">Session ended. Come back anytime!</span>');
+    } else {
+        appendLine(`<span class="r">Command not found: ${raw.trim()}</span> <span class="gr">— Type <span class="y">help</span> for available commands.</span>`);
+    }
+
+    appendLine('');
+    scrollDown();
+}
+
+// ── INPUT HANDLING ────────────────────────────────────────────────────
+input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+        runCmd(input.value);
+        input.value = '';
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx]; }
+    } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (histIdx > 0) { histIdx--; input.value = history[histIdx]; }
+        else { histIdx = -1; input.value = ''; }
+    }
+});
+
+// Clicking terminal focuses input
+document.getElementById('termBody').addEventListener('click', () => input.focus());
+
+// Quick nav buttons
+function runCmd(cmd) {
+    input.value = '';
+    const raw = cmd;
+    const key = raw.trim().toLowerCase();
+    echoCommand(raw.trim());
+    if (history[0] !== raw.trim()) history.unshift(raw.trim());
+    histIdx = -1;
+    if (commands[key]) {
+        commands[key]();
+    } else if (key === 'sudo') {
+        appendLine('<span class="r">Permission denied. Nice try 😄</span>');
+    } else {
+        appendLine(`<span class="r">Command not found: ${raw}</span> <span class="gr">— Type <span class="y">help</span> for available commands.</span>`);
+    }
+    appendLine('');
+    scrollDown();
+}
+</script>
+</body>
+</html>
